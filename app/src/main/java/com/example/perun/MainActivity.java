@@ -11,6 +11,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,14 +36,15 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Reads data from the solar_eclipse_data.txt file in the assets folder.
-     * The file should contain lines with a date and a separation value.
-     * The method removes the fractional part of the separation value for display.
+     * Formats date and truncates unnecessary decimal places from separation value.
      *
      * @return A formatted string containing the contents of the file.
      */
     private String readDataFromAssets() {
         StringBuilder data = new StringBuilder();
         AssetManager assetManager = getAssets();
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
 
         try (InputStream inputStream = assetManager.open("solar_eclipse_data.txt");
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -52,9 +57,18 @@ public class MainActivity extends AppCompatActivity {
                 // Parse each line to extract the date and integer part of the separation value
                 String[] parts = line.split(" ");
                 if (parts.length == 2) {
-                    String date = parts[0]; // The date string
-                    String sep = parts[1].split("\\.")[0]; // Integer part of the separation value
-                    data.append(date).append("   ").append(sep).append("\n"); // Format output
+                    String dateStr = parts[0] + " " + parts[1]; // Combine date and time
+                    String sep = String.format(Locale.getDefault(), "%.2f", Double.parseDouble(parts[1])); // Format to 2 decimal places
+
+                    try {
+                        Date date = inputFormat.parse(dateStr);
+                        if (date != null) {
+                            String formattedDate = outputFormat.format(date); // Reformat date
+                            data.append(formattedDate).append("   ").append(sep).append("°\n"); // Append to output
+                        }
+                    } catch (ParseException e) {
+                        Log.e("DateParsing", "Error parsing date: " + e.getMessage());
+                    }
                 }
             }
         } catch (IOException e) {

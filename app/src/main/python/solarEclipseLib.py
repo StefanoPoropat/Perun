@@ -22,7 +22,7 @@ observer.elevation = -6371000    # place observer in the center of the Earth
 observer.pressure = 0            # disable refraction
 
 # Open a file in write mode to store the output
-with open("solar_eclipse_data.txt", "w") as file:
+with open("../assets/solar_eclipse_data.txt", "w") as file:
     while curtime <= endtime:
         observer.date = curtime.strftime('%Y/%m/%d %H:%M:%S')
 

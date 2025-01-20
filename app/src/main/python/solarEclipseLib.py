@@ -1,5 +1,5 @@
 '''
-Shows the occurences of a solar eclipse in the 21st century.
+Shows the occurrences of a solar eclipse in the 21st century.
 
 Works by iterating every five minutes in the 21st century and calculating
 if the separation between the Moon and the Sun is less than half of max sun
@@ -21,26 +21,30 @@ observer = ephem.Observer()
 observer.elevation = -6371000    # place observer in the center of the Earth
 observer.pressure = 0            # disable refraction
 
-while curtime <= endtime:
-    observer.date = curtime.strftime('%Y/%m/%d %H:%M:%S')
+# Open a file in write mode to store the output
+with open("solar_eclipse_data.txt", "w") as file:
+    while curtime <= endtime:
+        observer.date = curtime.strftime('%Y/%m/%d %H:%M:%S')
 
-    # computer the position of the sun and the moon with respect to the observer
-    moon.compute(observer)
-    sun.compute(observer)
+        # Compute the position of the sun and the moon with respect to the observer
+        moon.compute(observer)
+        sun.compute(observer)
 
-    # calculate separation between the moon and the sun, convert
-    # it from radians to degrees
-    sep = abs((float(ephem.separation(moon, sun))
-               / 0.01745329252))
+        # Calculate separation between the moon and the sun, convert
+        # it from radians to degrees
+        sep = abs((float(ephem.separation(moon, sun))
+                   / 0.01745329252))
 
-    # a solar eclipse happens if Sun-Earth-Moon alignment is <1.5976°.
-    # this should detect all total and partial eclipses, but will
-    # include some near misses.
-    if sep < 1.59754941: #
-        print(curtime.strftime('%Y/%m/%d %H:%M:%S'), sep)
-        # an eclipse cannot happen more than once in a day,
-        # so we skip 24 hours when an eclipse is found
-        curtime += timedelta(days = 1)
-    else:
-        # advance five minutes if an eclipse is not found
-        curtime += timedelta(minutes = 5)
+        # A solar eclipse happens if Sun-Earth-Moon alignment is <1.5976°.
+        # This should detect all total and partial eclipses, but will
+        # include some near misses.
+        if sep < 1.59754941:
+            output = f"{curtime.strftime('%Y/%m/%d %H:%M:%S')} {sep}\n"
+            print(output.strip())  # Display on screen
+            file.write(output)    # Save to file
+            # An eclipse cannot happen more than once in a day,
+            # so we skip 24 hours when an eclipse is found
+            curtime += timedelta(days=1)
+        else:
+            # Advance five minutes if an eclipse is not found
+            curtime += timedelta(minutes=5)

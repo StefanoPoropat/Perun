@@ -1,12 +1,15 @@
 package com.example.perun;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,29 +17,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        TextView textView = findViewById(R.id.textView);
-        String content = readTextFile("solar_eclipse_data.txt");
-        textView.setText(content);
+        initPython();
     }
 
-    private String readTextFile(String fileName) {
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            InputStream inputStream = getAssets().open(fileName);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(" ");
-                if (parts.length > 1) {
-                    stringBuilder.append(parts[0]).append(" ").append(parts[1]).append("\n");
-                }
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Error reading file";
+    private void initPython() {
+        if (!Python.isStarted()) {
+            Python.start(new AndroidPlatform(this));
         }
-        return stringBuilder.toString();
+    }
+
+    private String getSolarCalc() {
+        Python python = Python.getInstance();
+        PyObject pythonFile = python.getModule("solarEclipseLib");
+        return pythonFile.callAttr("solarCalc").toString();
+    }
+
+    public void printSolarCalc(View view) {
+        TextView textView = findViewById(R.id.textView);
+        textView.setText(getSolarCalc());
     }
 }

@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    id 'com.chaquo.python'
+    id 'com.chaquo.python'  // Correctly applying the Python plugin
 }
 
 android {
@@ -14,11 +14,16 @@ android {
         versionCode 1
         versionName "1.0"
         ndk {
-            // On Apple silicon, you can omit x86_64.
             abiFilters "arm64-v8a", "x86_64"
         }
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        python {
+            pip {
+                install "ephem"
+            }
+        }
     }
 
     buildTypes {
@@ -27,11 +32,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
 }
+
+
 
 dependencies {
     implementation libs.appcompat
@@ -41,4 +49,5 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
 }

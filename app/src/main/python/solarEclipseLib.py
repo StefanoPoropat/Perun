@@ -14,15 +14,18 @@ import ephem
 from datetime import datetime, timedelta
 
 curtime = datetime(2024, 1, 1, 0, 0, 0)        # start time
-endtime = datetime(2100, 12, 31, 23, 59, 59)   # end time
+endtime = datetime(2024, 12, 31, 23, 59, 59)   # end time
 moon = ephem.Moon()
 sun = ephem.Sun()
 observer = ephem.Observer()
 observer.elevation = -6371000    # place observer in the center of the Earth
 observer.pressure = 0            # disable refraction
+outputResult = []
 
-# Open a file in write mode to store the output
-with open("../assets/solar_eclipse_data.txt", "w") as file:
+def solarCalc():
+    global curtime  # Declare curtime as a global variable to use it across the function
+    # Open a file in write mode to store the output
+    # with open("../assets/solar_eclipse_data.txt", "w") as file:
     while curtime <= endtime:
         observer.date = curtime.strftime('%Y/%m/%d %H:%M:%S')
 
@@ -40,11 +43,11 @@ with open("../assets/solar_eclipse_data.txt", "w") as file:
         # include some near misses.
         if sep < 1.59754941:
             output = f"{curtime.strftime('%Y/%m/%d %H:%M:%S')} {sep}\n"
-            print(output.strip())  # Display on screen
-            file.write(output)    # Save to file
+            outputResult.append(output.strip())
             # An eclipse cannot happen more than once in a day,
             # so we skip 24 hours when an eclipse is found
             curtime += timedelta(days=1)
         else:
             # Advance five minutes if an eclipse is not found
             curtime += timedelta(minutes=5)
+    return outputResult
